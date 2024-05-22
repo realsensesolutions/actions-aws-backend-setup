@@ -31,9 +31,9 @@ jobs:
             --resource-type-filters $SERVICE \
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
-          echo "arn=$arn" >> $GITHUB~_OUTPUT
+          echo "arn=$arn" >> $GITHUB_OUTPUT
           name=$(echo "$arn" | awk -F ':::' '{print $2}')
-          echo "name=$name" >> $GITHUB~_OUTPUT
+          echo "name=$name" >> $GITHUB_OUTPUT
       - name: query s3
         id: s3
         env: 
@@ -45,6 +45,8 @@ jobs:
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
           echo "arn=$arn" >> $GITHUB_OUTPUT
+          name=$(echo "$arn" | awk -F ':::' '{print $2}')
+          echo "name=$name" >> $GITHUB_OUTPUT
       - name: query kms
         id: kms
         env: 
@@ -56,6 +58,8 @@ jobs:
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
           echo "arn=$arn" >> $GITHUB_OUTPUT
+          name=$(echo "$arn" | awk -F ':::' '{print $2}')
+          echo "name=$name" >> $GITHUB_OUTPUT
 
       - uses: hashicorp/setup-terraform@v3
 
