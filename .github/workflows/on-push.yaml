@@ -26,8 +26,8 @@ jobs:
         env: 
           SERVICE: dynamodb
         run: | 
-          arn=$(aws resourcegroupstaggingapi get-resources \ 
-            --tag-filters Key=tf-backend,Values=true \ 
+          arn=$(aws resourcegroupstaggingapi get-resources \
+            --tag-filters Key=tf-backend,Values=true \
             --resource-type-filters $SERVICE \
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
@@ -37,8 +37,8 @@ jobs:
         env: 
           SERVICE: s3
         run: | 
-          arn=$(aws resourcegroupstaggingapi get-resources \ 
-            --tag-filters Key=tf-backend,Values=true \ 
+          arn=$(aws resourcegroupstaggingapi get-resources \
+            --tag-filters Key=tf-backend,Values=true \
             --resource-type-filters $SERVICE \
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
@@ -48,8 +48,8 @@ jobs:
         env: 
           SERVICE: kms
         run: | 
-          arn=$(aws resourcegroupstaggingapi get-resources \ 
-            --tag-filters Key=tf-backend,Values=true \ 
+          arn=$(aws resourcegroupstaggingapi get-resources \
+            --tag-filters Key=tf-backend,Values=true \
             --resource-type-filters $SERVICE \
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
