@@ -6,7 +6,11 @@ on:
 env: 
   region: us-east-1
 jobs:
+  
+
   tf-plan:
+    permissions: 
+      id-token: write
     runs-on: ubuntu-latest
 
     steps:
