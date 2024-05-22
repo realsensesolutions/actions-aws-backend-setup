@@ -16,6 +16,7 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.ROLE_ARN }}
+          role-session-name: ${{ github.repository_owner }}-${{ github.actor }}
       - name: query dynamodb
         id: dynamodb
         env: 
