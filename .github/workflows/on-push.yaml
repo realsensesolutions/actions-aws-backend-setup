@@ -31,7 +31,9 @@ jobs:
             --resource-type-filters $SERVICE \
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
-          echo "arn=$arn\n" >> $GITHUB~_OUTPUT
+          echo "arn=$arn" >> $GITHUB~_OUTPUT
+          name=$(echo "$arn" | awk -F ':::' '{print $2}')
+          echo "name=$name" >> $GITHUB~_OUTPUT
       - name: query s3
         id: s3
         env: 
@@ -42,7 +44,7 @@ jobs:
             --resource-type-filters $SERVICE \
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
-          echo "arn=$arn\n" >> $GITHUB_OUTPUT
+          echo "arn=$arn" >> $GITHUB_OUTPUT
       - name: query kms
         id: kms
         env: 
@@ -53,14 +55,14 @@ jobs:
             --resource-type-filters $SERVICE \
             --query "ResourceTagMappingList[].ResourceARN" \
             --output text)
-          echo "arn=$arn\n" >> $GITHUB_OUTPUT
+          echo "arn=$arn" >> $GITHUB_OUTPUT
 
       - uses: hashicorp/setup-terraform@v3
 
       - run: | 
           terraform init \
-            -backend-config="bucket=${{steps.s3.outputs.arn}}" \
+            -backend-config="bucket=${{steps.s3.outputs.name}}" \
             -backend-config="key=${{steps.kms.outputs.arn}}" \
-            -backend-config="dynamodb_table=${{ steps.dynamodb.outputs.arn}}" \
+            -backend-config="dynamodb_table=${{ steps.dynamodb.outputs.name}}" \
             -backend-config="region=${{ env.region }}"
       
