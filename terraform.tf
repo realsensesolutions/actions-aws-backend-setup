@@ -1,11 +1,19 @@
+locals {
+  tags = {
+    Terraform    = true
+    "${var.instance}" = true
+  }
+}
+
 terraform {
-    required_providers {
-        aws = {
-            version = "~> 4.59.0"
-        }
+  required_providers {
+    aws = {
+      version = "~> 4.59.0"
     }
-    backend "s3" {
-        encrypt        = true
-    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
 }
 
