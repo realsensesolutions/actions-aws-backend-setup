@@ -21,7 +21,7 @@ jobs:
           aws-region: ${{ env.region }}
           role-to-assume: ${{ secrets.ROLE_ARN }}
           role-session-name: ${{ github.repository_owner }}-${{ github.actor }}
-      - uses: aloncb/actions-aws-backend-setup@main
+      - uses: alonch/actions-aws-backend-setup@main
         id: backend
 
       - uses: hashicorp/setup-terraform@v3
