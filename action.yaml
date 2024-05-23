@@ -11,7 +11,7 @@ outputs:
     value: ${{ steps.s3.outputs.name }}  
   dynamodb:
     description: "Backend dynamodb Table"
-    value: ${{ steps.kms.outputs.name }}  
+    value: ${{ steps.dynamodb.outputs.name }}  
 runs:
   using: "composite"
   steps:
