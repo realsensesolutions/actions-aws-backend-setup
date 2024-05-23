@@ -28,7 +28,6 @@ runs:
           --resource-type-filters $SERVICE \
           --query "ResourceTagMappingList[].ResourceARN" \
           --output text)
-        echo "arn=$arn" >> $GITHUB_OUTPUT
         name=$(echo "$arn" | awk -F $ARN_SEPARATOR '{print $2}')
         echo "name=$name" >> $GITHUB_OUTPUT
     - name: query s3
@@ -44,6 +43,5 @@ runs:
           --resource-type-filters $SERVICE \
           --query "ResourceTagMappingList[].ResourceARN" \
           --output text)
-        echo "arn=$arn" >> $GITHUB_OUTPUT
         name=$(echo "$arn" | awk -F $ARN_SEPARATOR '{print $2}')
         echo "name=$name" >> $GITHUB_OUTPUT
