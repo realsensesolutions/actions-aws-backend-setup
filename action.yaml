@@ -24,7 +24,7 @@ runs:
         TAG_NAME: ${{ inputs.instance }}
       run: | 
         arn=$(aws resourcegroupstaggingapi get-resources \
-          --tag-filters Key=TAG_NAME,Values=true \
+          --tag-filters Key=$TAG_NAME,Values=true \
           --resource-type-filters $SERVICE \
           --query "ResourceTagMappingList[].ResourceARN" \
           --output text)
