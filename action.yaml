@@ -14,10 +14,6 @@ outputs:
     value: ${{ steps.kms.outputs.name }}  
 runs:
   using: "composite"
-  default:
-    env:
-      
-
   steps:
     - name: query dynamodb
       shell: bash
