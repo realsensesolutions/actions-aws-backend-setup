@@ -21,52 +21,15 @@ jobs:
           aws-region: ${{ env.region }}
           role-to-assume: ${{ secrets.ROLE_ARN }}
           role-session-name: ${{ github.repository_owner }}-${{ github.actor }}
-      - name: query dynamodb
-        id: dynamodb
-        env: 
-          SERVICE: dynamodb
-        run: | 
-          arn=$(aws resourcegroupstaggingapi get-resources \
-            --tag-filters Key=tf-backend,Values=true \
-            --resource-type-filters $SERVICE \
-            --query "ResourceTagMappingList[].ResourceARN" \
-            --output text)
-          echo "arn=$arn" >> $GITHUB_OUTPUT
-          name=$(echo "$arn" | awk -F ':::' '{print $2}')
-          echo "name=$name" >> $GITHUB_OUTPUT
-      - name: query s3
-        id: s3
-        env: 
-          SERVICE: s3
-        run: | 
-          arn=$(aws resourcegroupstaggingapi get-resources \
-            --tag-filters Key=tf-backend,Values=true \
-            --resource-type-filters $SERVICE \
-            --query "ResourceTagMappingList[].ResourceARN" \
-            --output text)
-          echo "arn=$arn" >> $GITHUB_OUTPUT
-          name=$(echo "$arn" | awk -F ':::' '{print $2}')
-          echo "name=$name" >> $GITHUB_OUTPUT
-      - name: query kms
-        id: kms
-        env: 
-          SERVICE: kms
-        run: | 
-          arn=$(aws resourcegroupstaggingapi get-resources \
-            --tag-filters Key=tf-backend,Values=true \
-            --resource-type-filters $SERVICE \
-            --query "ResourceTagMappingList[].ResourceARN" \
-            --output text)
-          echo "arn=$arn" >> $GITHUB_OUTPUT
-          name=$(echo "$arn" | awk -F ':::' '{print $2}')
-          echo "name=$name" >> $GITHUB_OUTPUT
+      - uses: aloncb/actions-aws-backend-setup@main
+        id: backend
 
       - uses: hashicorp/setup-terraform@v3
 
       - run: | 
           terraform init \
-            -backend-config="bucket=${{steps.s3.outputs.name}}" \
-            -backend-config="key=${{steps.kms.outputs.arn}}" \
-            -backend-config="dynamodb_table=${{ steps.dynamodb.outputs.name}}" \
+            -backend-config="bucket=${{steps.backend.outputs.s3}}" \
+            -backend-config="key=${{github.repository}}" \
+            -backend-config="dynamodb_table=${{ steps.backend.outputs.dynamodb}}" \
             -backend-config="region=${{ env.region }}"
       
