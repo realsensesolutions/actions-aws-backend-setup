@@ -29,9 +29,6 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
 
       - run: | 
-          terraform init \
-            -backend-config="bucket=${{steps.backend.outputs.s3}}" \
-            -backend-config="key=${{github.repository}}" \
-            -backend-config="dynamodb_table=${{ steps.backend.outputs.dynamodb}}" \
-            -backend-config="region=${{ env.region }}"
+          echo "${{ steps.backend.outputs.s3 }} - ${{ steps.backend.outputs.dynamodb }}"
+            
       
