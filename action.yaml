@@ -8,10 +8,10 @@ inputs:
 outputs:
   s3:
     description: "Backend S3 name"
-    value: ${{ steps.s3.outputs.name || format("actions-aws-backend-setup-{0}", inputs.instance) }}  
+    value: ${{ steps.s3.outputs.name || format('actions-aws-backend-setup-{0}', inputs.instance) }}  
   dynamodb:
     description: "Backend dynamodb Table"
-    value: ${{ steps.dynamodb.outputs.name || format("actions-aws-backend-setup-{0}", inputs.instance) }}  
+    value: ${{ steps.dynamodb.outputs.name || format('actions-aws-backend-setup-{0}', inputs.instance) }}  
 runs:
   using: "composite"
   steps:
