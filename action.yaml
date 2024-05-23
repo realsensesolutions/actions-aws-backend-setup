@@ -45,8 +45,16 @@ runs:
           --output text)
         name=$(echo "$arn" | awk -F $ARN_SEPARATOR '{print $2}')
         echo "name=$name" >> $GITHUB_OUTPUT
-    - name: provision backend
-      id: provision
+    - uses: hashicorp/setup-terraform@v3
+      if: ${{ !steps.s3.outputs.name }}
+    - name: terraform init
       shell: bash
       if: ${{ !steps.s3.outputs.name }}
-      run: echo "creating infra"
+      run: terraform init
+    - name: terraform apply
+      shell: bash
+      if: ${{ !steps.s3.outputs.name }}
+      env: 
+        TF_VAR_instance: ${{ inputs.instance }}
+      run: terraform apply -auto-approve
+      
