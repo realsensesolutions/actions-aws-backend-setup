@@ -45,3 +45,8 @@ runs:
           --output text)
         name=$(echo "$arn" | awk -F $ARN_SEPARATOR '{print $2}')
         echo "name=$name" >> $GITHUB_OUTPUT
+    - name: provision backend
+      id: provision
+      shell: bash
+      if: ${{ !steps.s3.outputs.name }}
+      run: echo "creating infra"
