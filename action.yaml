@@ -14,32 +14,40 @@ outputs:
     value: ${{ steps.kms.outputs.name }}  
 runs:
   using: "composite"
+  default:
+    env:
+      
+
   steps:
     - name: query dynamodb
       shell: bash
       id: dynamodb
       env: 
         SERVICE: dynamodb
+        ARN_SEPARATOR: /
+        TAG_NAME: ${{ inputs.instance }}
       run: | 
         arn=$(aws resourcegroupstaggingapi get-resources \
-          --tag-filters Key=tf-backend,Values=true \
+          --tag-filters Key=TAG_NAME,Values=true \
           --resource-type-filters $SERVICE \
           --query "ResourceTagMappingList[].ResourceARN" \
           --output text)
         echo "arn=$arn" >> $GITHUB_OUTPUT
-        name=$(echo "$arn" | awk -F ':::' '{print $2}')
+        name=$(echo "$arn" | awk -F $ARN_SEPARATOR '{print $2}')
         echo "name=$name" >> $GITHUB_OUTPUT
     - name: query s3
       shell: bash
       id: s3
       env: 
         SERVICE: s3
+        ARN_SEPARATOR: ':::'
+        TAG_NAME: ${{ inputs.instance }}
       run: | 
         arn=$(aws resourcegroupstaggingapi get-resources \
-          --tag-filters Key=tf-backend,Values=true \
+          --tag-filters Key=$TAG_NAME,Values=true \
           --resource-type-filters $SERVICE \
           --query "ResourceTagMappingList[].ResourceARN" \
           --output text)
         echo "arn=$arn" >> $GITHUB_OUTPUT
-        name=$(echo "$arn" | awk -F ':::' '{print $2}')
+        name=$(echo "$arn" | awk -F $ARN_SEPARATOR '{print $2}')
         echo "name=$name" >> $GITHUB_OUTPUT
