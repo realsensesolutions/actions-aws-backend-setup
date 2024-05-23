@@ -23,6 +23,8 @@ jobs:
           role-session-name: ${{ github.repository_owner }}-${{ github.actor }}
       - uses: alonch/actions-aws-backend-setup@main
         id: backend
+        with: 
+          instance: petro
 
       - uses: hashicorp/setup-terraform@v3
 
