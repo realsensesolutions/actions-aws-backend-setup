@@ -8,10 +8,10 @@ inputs:
 outputs:
   s3:
     description: "Backend S3 name"
-    value: ${{ steps.s3.outputs.name || format('actions-aws-backend-setup-{0}', inputs.instance) }}  
+    value: ${{ steps.s3.outputs.name || steps.provision-s3.outputs.s3 }}  
   dynamodb:
     description: "Backend dynamodb Table"
-    value: ${{ steps.dynamodb.outputs.name || format('actions-aws-backend-setup-{0}', inputs.instance) }}  
+    value: ${{ steps.dynamodb.outputs.name || steps.provision-dynamodb.outputs.dynamodb }}  
 runs:
   using: "composite"
   steps:
@@ -21,7 +21,7 @@ runs:
       env: 
         SERVICE: dynamodb
         ARN_SEPARATOR: /
-        TAG_NAME: ${{ inputs.instance }}
+        TAG_NAME: ${{ format('{0}-{1}', github.repository_owner, inputs.instance) }}
       run: | 
         arn=$(aws resourcegroupstaggingapi get-resources \
           --tag-filters Key=$TAG_NAME,Values=true \
@@ -36,7 +36,7 @@ runs:
       env: 
         SERVICE: s3
         ARN_SEPARATOR: ':::'
-        TAG_NAME: ${{ inputs.instance }}
+        TAG_NAME: ${{ format('{0}-{1}', github.repository_owner, inputs.instance) }}
       run: | 
         arn=$(aws resourcegroupstaggingapi get-resources \
           --tag-filters Key=$TAG_NAME,Values=true \
@@ -47,7 +47,7 @@ runs:
         echo "name=$name" >> $GITHUB_OUTPUT
     - uses: hashicorp/setup-terraform@v3
       if: ${{ !steps.s3.outputs.name }}
-    - name: terraform init
+    - name: init
       shell: bash
       if: ${{ !steps.s3.outputs.name }}
       run: terraform init
@@ -55,6 +55,24 @@ runs:
       shell: bash
       if: ${{ !steps.s3.outputs.name }}
       env: 
-        TF_VAR_instance: ${{ inputs.instance }}
-      run: terraform apply -auto-approve
+        TF_VAR_instance: ${{ format('{0}-{1}', github.repository_owner, inputs.instance) }}
+      run: |
+        terraform apply -auto-approve
+    - name: set tf dynamodb 
+      shell: bash
+      id: provision-dynamodb
+      if: ${{ !steps.s3.outputs.name }}
+      run: |
+        DYNAMODB_TABLE_NAME=$(terraform output -raw dynamodb)
+        echo "TF_BACKEND_dynamodb=$DYNAMODB_TABLE_NAME" >> $GITHUB_ENV
+        echo "dynamodb=$DYNAMODB_TABLE_NAME" >> $GITHUB_OUTPUT
+    - name: set tf s3
+      shell: bash
+      id: provision-s3
+      if: ${{ !steps.s3.outputs.name }}
+      run: |
+        S3_BUCKET=$(terraform output -raw bucket)
+        echo "TF_BACKEND_s3=$S3_BUCKET" >> $GITHUB_ENV
+        echo "s3=$S3_BUCKET" >> $GITHUB_OUTPUT
+            
       
