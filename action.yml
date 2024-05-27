@@ -1,10 +1,10 @@
-name: 'Actions AWS backend setup'
+name: Actions AWS backend setup
 description: 'Search or Create Terraform backend resources on AWS'
 inputs:
   instance: 
     description: 'Unique identifier for infrastructure'
     required: true
-    default: 'tf-backend'
+    default: 'my-backend'
 outputs:
   s3:
     description: "Backend S3 name"
