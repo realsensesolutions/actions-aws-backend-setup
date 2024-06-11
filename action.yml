@@ -48,7 +48,6 @@ runs:
         echo "TF_BACKEND_s3=$name" >> $GITHUB_ENV
         echo "name=$name" >> $GITHUB_OUTPUT
     - uses: hashicorp/setup-terraform@v3
-      if: ${{ !steps.s3.outputs.name }}
     - name: init
       shell: bash
       if: ${{ !steps.s3.outputs.name }}
