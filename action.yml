@@ -1,28 +1,31 @@
 name: Actions AWS backend setup
 description: 'Search or Create Terraform backend resources on AWS'
 inputs:
-  instance: 
+  instance:
     description: 'Unique identifier for infrastructure'
     required: true
     default: 'my-backend'
 outputs:
   s3:
     description: "Backend S3 name"
-    value: ${{ steps.s3.outputs.name || steps.provision-s3.outputs.s3 }}  
+    value: ${{ steps.s3.outputs.name || steps.provision-s3.outputs.s3 }}
   dynamodb:
     description: "Backend dynamodb Table"
-    value: ${{ steps.dynamodb.outputs.name || steps.provision-dynamodb.outputs.dynamodb }}  
+    value: ${{ steps.dynamodb.outputs.name || steps.provision-dynamodb.outputs.dynamodb }}
+  instance:
+    description: "Instance name used for resources"
+    value: ${{ steps.set_instance_name.outputs.instance_name }}
 runs:
   using: "composite"
   steps:
     - name: query dynamodb
       shell: bash
       id: dynamodb
-      env: 
+      env:
         SERVICE: dynamodb
         ARN_SEPARATOR: /
         TAG_NAME: ${{ format('{0}-{1}', github.repository_owner, inputs.instance) }}
-      run: | 
+      run: |
         arn=$(aws resourcegroupstaggingapi get-resources \
           --tag-filters Key=$TAG_NAME,Values=true \
           --resource-type-filters $SERVICE \
@@ -34,11 +37,11 @@ runs:
     - name: query s3
       shell: bash
       id: s3
-      env: 
+      env:
         SERVICE: s3
         ARN_SEPARATOR: ':::'
         TAG_NAME: ${{ format('{0}-{1}', github.repository_owner, inputs.instance) }}
-      run: | 
+      run: |
         arn=$(aws resourcegroupstaggingapi get-resources \
           --tag-filters Key=$TAG_NAME,Values=true \
           --resource-type-filters $SERVICE \
@@ -47,6 +50,13 @@ runs:
         name=$(echo "$arn" | awk -F $ARN_SEPARATOR '{print $2}')
         echo "TF_BACKEND_s3=$name" >> $GITHUB_ENV
         echo "name=$name" >> $GITHUB_OUTPUT
+    - name: set instance name
+      shell: bash
+      id: set_instance_name
+      run: |
+        INSTANCE_NAME="${{ format('{0}-{1}', github.repository_owner, inputs.instance) }}"
+        echo "TF_VAR_instance=$INSTANCE_NAME" >> $GITHUB_ENV
+        echo "instance_name=$INSTANCE_NAME" >> $GITHUB_OUTPUT
     - uses: hashicorp/setup-terraform@v3
     - name: init
       shell: bash
@@ -57,11 +67,11 @@ runs:
       shell: bash
       if: ${{ !steps.s3.outputs.name }}
       working-directory: ${{ github.action_path }}
-      env: 
+      env:
         TF_VAR_instance: ${{ format('{0}-{1}', github.repository_owner, inputs.instance) }}
       run: |
         terraform apply -auto-approve
-    - name: set tf dynamodb 
+    - name: set tf dynamodb
       working-directory: ${{ github.action_path }}
       shell: bash
       id: provision-dynamodb
@@ -79,5 +89,4 @@ runs:
         S3_BUCKET=$(terraform output -raw bucket)
         echo "TF_BACKEND_s3=$S3_BUCKET" >> $GITHUB_ENV
         echo "s3=$S3_BUCKET" >> $GITHUB_OUTPUT
-            
-      
+
