@@ -31,7 +31,7 @@ resource "aws_s3_bucket_policy" "state_force_ssl" {
 }
 
 resource "aws_s3_bucket" "state" {
-  bucket_prefix = "actions-aws-backend-setup-${var.instance}-"
+  bucket        = "actions-aws-backend-setup-${var.instance}"
   tags          = local.tags
 }
 
